@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mathemeister/api/getCategories.dart';
+import 'package:mathemeister/chooseCategory.dart';
+import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/utils/ui/colorUtils.dart';
 
 import 'appInfos.dart';
@@ -14,6 +17,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
+  List<Category> preloadedCategories;
+
+  @override
+  void initState() {
+
+    _preloadCategories();
+
+    super.initState();
+  }
+
+  void _preloadCategories() async {
+    preloadedCategories = await GetCategories.getCategories();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,11 +66,13 @@ class _HomeState extends State<Home> {
               child: Container(),
             ),
             CupertinoButton(
-              onPressed: () {},
+              onPressed: () {
+                GetCategories.getCategories();
+              },
               child: Container(
                 child: Center(
                     child: Text(
-                  "Level 1",
+                  "Level ${widget.level}",
                   style: TextStyle(
                     fontFamily: "Arial Rounded MT Bold",
                     fontSize: 21,
@@ -79,7 +99,15 @@ class _HomeState extends State<Home> {
               ),
             ),
             CupertinoButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    fullscreenDialog: false,
+                    builder: (context) => ChooseCategory(categories: preloadedCategories,),
+                  ),
+                );
+                },
                 child: Container(
                   child: Center(
                       child: Text(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mathemeister/utils/debugUtils.dart';
 import 'package:mathemeister/utils/ui/bottomButton.dart';
 import 'package:mathemeister/utils/ui/colorUtils.dart';
+import 'package:swipedetector/swipedetector.dart';
 
 class AppInfos extends StatefulWidget {
   @override
@@ -12,16 +13,12 @@ class AppInfos extends StatefulWidget {
 class AppInfosState extends State<AppInfos> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        bottomSheet: BottomButton(
-          title: "Zurück",
-          backgroundColor: Colors.white,
-          textStyle: TextStyle(
-            fontFamily: "Arial Rounded MT Bold",
-            fontSize: 21,
-            color: Color(0xff40a764),
-          ),
-        ),
+    return SwipeDetector(
+      onSwipeDown: () {
+        Navigator.pop(context);
+      },
+      child: Scaffold(
+        bottomSheet: BottomButtonStd(),
         appBar: AppBar(
           title: Text("Über MatheMeister"),
           backgroundColor: Color(0xff4bc475),
@@ -54,8 +51,8 @@ class AppInfosState extends State<AppInfos> {
                       Text(
                         "Laurens Kropf",
                         style: TextStyle(
+                          fontFamily: "Arial Rounded MT Bold",
                           color: Color(0xff40a764),
-                          fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
                       ),
@@ -80,8 +77,8 @@ class AppInfosState extends State<AppInfos> {
                       Text(
                         "hello@laurensk.at",
                         style: TextStyle(
+                          fontFamily: "Arial Rounded MT Bold",
                           color: Color(0xff40a764),
-                          fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
                       ),
@@ -106,8 +103,8 @@ class AppInfosState extends State<AppInfos> {
                       Text(
                         "Elke Stückler",
                         style: TextStyle(
+                          fontFamily: "Arial Rounded MT Bold",
                           color: Color(0xff40a764),
-                          fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),
                       ),
@@ -160,6 +157,7 @@ class AppInfosState extends State<AppInfos> {
               ),
             ),
           ),
-        ));
+        ))
+    );
   }
 }

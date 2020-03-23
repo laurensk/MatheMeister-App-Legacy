@@ -1,4 +1,20 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class BottomButtonStd extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BottomButton(
+      title: "Zurück",
+      backgroundColor: Colors.white,
+      textStyle: TextStyle(
+        fontFamily: "Arial Rounded MT Bold",
+        fontSize: 21,
+        color: Color(0xff40a764),
+      ),
+    );
+  }
+}
 
 class BottomButton extends StatelessWidget {
   final String title;
