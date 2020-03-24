@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mathemeister/api/getCategories.dart';
@@ -73,8 +75,8 @@ class _ChooseCategoryState extends State<ChooseCategory> {
 
   Widget _listView(BuildContext context, List<Category> categories) {
     return Container(
-      padding: EdgeInsets.only(top: 10),
       child: ListView.builder(
+          padding: EdgeInsets.only(top: 10, bottom: 130),
           itemCount: categories.length,
           itemBuilder: (BuildContext context, int index) {
             Category category = categories[index];
@@ -93,7 +95,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
           margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           child: InkWell(
               onTap: () {
-                _categorySelected(index);
+                _categorySelected(category, index);
               },
               child: Container(
                   height: 73,
@@ -157,7 +159,30 @@ class _ChooseCategoryState extends State<ChooseCategory> {
     );
   }
 
-  _categorySelected(int index) {
-    print("you have selected the category: " + index.toString());
+  _categorySelected(Category category, int index) async {
+    print("you have selected the category: " +
+        index.toString() +
+        " on the server: cat_id: " +
+        category.catId);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          content: CupertinoActivityIndicator(
+            animating: true,
+            radius: 15,
+          ),
+        );
+      },
+    );
+
+  // create getQuestions.dart and get 10 questions for this category
+    GetCategories.getCategories().then((result) {
+      print(result);
+      Navigator.pop(context);
+      // navigator push Game(questions)
+    });
   }
 }
