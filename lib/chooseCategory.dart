@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mathemeister/api/getCategories.dart';
+import 'package:mathemeister/api/apiRequests.dart';
 import 'package:mathemeister/game.dart';
+import 'package:mathemeister/models/apiCall.dart';
+import 'package:mathemeister/models/apiError.dart';
 import 'package:mathemeister/models/category.dart';
+import 'package:mathemeister/models/question.dart';
 import 'package:mathemeister/utils/ui/bottomButton.dart';
 import 'package:mathemeister/utils/ui/colorUtils.dart';
 
@@ -17,6 +20,8 @@ class ChooseCategory extends StatefulWidget {
 }
 
 class _ChooseCategoryState extends State<ChooseCategory> {
+  int _selected;
+
   @override
   void initState() {
     // TODO: implement initState
@@ -35,13 +40,13 @@ class _ChooseCategoryState extends State<ChooseCategory> {
         body: Container(
           child: Center(
             child: widget.categories == null
-                ? FutureBuilder<List<Category>>(
-                    future: GetCategories.getCategories(),
+                ? FutureBuilder<ApiCall>(
+                    future: ApiRequests.getCategories(),
                     builder: (BuildContext context,
-                        AsyncSnapshot<List<Category>> categories) {
-                      switch (categories.connectionState) {
+                        AsyncSnapshot<ApiCall> apiCall) {
+                      switch (apiCall.connectionState) {
                         case ConnectionState.done:
-                          return _listView(context, categories.data);
+                          return _listView(context, apiCall.data.data);
                           break;
                         default:
                           return _loading();
@@ -90,9 +95,17 @@ class _ChooseCategoryState extends State<ChooseCategory> {
     return Container(
       child: Card(
           elevation: 7,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
+          shape: _selected == index
+              ? RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  side: BorderSide(
+                    color: Color(0xff1ab14e),
+                    width: 2.0,
+                  ),
+                )
+              : RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
           margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           child: InkWell(
               onTap: () {
@@ -161,6 +174,9 @@ class _ChooseCategoryState extends State<ChooseCategory> {
   }
 
   _categorySelected(Category category, int index) async {
+    setState(() {
+      _selected = index;
+    });
 
     showDialog(
       context: context,
@@ -175,19 +191,21 @@ class _ChooseCategoryState extends State<ChooseCategory> {
       },
     );
 
-    // create getQuestions.dart and get 10 questions for this category
-    GetCategories.getCategories().then((result) {
-      print(result);
-      Navigator.pop(context);
-      // navigator push Game(questions)
-      Navigator.pushAndRemoveUntil(
-        context,
-        CupertinoPageRoute(
-          fullscreenDialog: false,
-          builder: (context) => Game(),
-        ),
-        ModalRoute.withName('/'),
-      );
+    ApiRequests.getQuestionsCat(index).then((apiCall) {
+      if (apiCall.error) {
+        print("error!!");
+      } else {
+        List<Question> questions = apiCall.data;
+        Navigator.pop(context);
+        Navigator.pushAndRemoveUntil(
+          context,
+          CupertinoPageRoute(
+            fullscreenDialog: false,
+            builder: (context) => Game(questions: questions),
+          ),
+          ModalRoute.withName('/'),
+        );
+      }
     });
   }
 }

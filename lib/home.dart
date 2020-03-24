@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mathemeister/api/getCategories.dart';
+import 'package:mathemeister/api/apiRequests.dart';
 import 'package:mathemeister/chooseCategory.dart';
+import 'package:mathemeister/models/apiCall.dart';
 import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/utils/ui/colorUtils.dart';
 
@@ -29,7 +30,8 @@ class _HomeState extends State<Home> {
   }
 
   void _preloadCategories() async {
-    preloadedCategories = await GetCategories.getCategories();
+    ApiCall apiCall = await ApiRequests.getCategories();
+    preloadedCategories = apiCall.data;
   }
 
   @override

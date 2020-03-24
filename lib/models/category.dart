@@ -1,10 +1,11 @@
 class Category {
-  final String catId;
-  final String catName;
-  final String catQuestions;
+  String catId;
+  String catName;
+  String catQuestions;
 
-  Category.fromJson(Map<String, dynamic> jsonMap) :
-    catId = jsonMap['cat_id'],
-    catName = jsonMap['cat_name'],
-    catQuestions = jsonMap['cat_qc'];
+  Category.fromJson(Map<String, dynamic> jsonMap) {
+    this.catId = jsonMap['cat_id'];
+    this.catName = jsonMap['cat_name'];
+    this.catQuestions = jsonMap['cat_qc'];
+  }
 }
