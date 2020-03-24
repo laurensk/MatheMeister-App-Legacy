@@ -5,8 +5,12 @@ class SharedPrefsUtils {
   static Future<int> checkAndGetCurrentLevel() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var lvl = prefs.getInt("level");
-    if (lvl == null) { setCurrentLevel(1); }
-    return getCurrentLevel();
+    if (lvl == null) {
+      setCurrentLevel(1);
+      return 1;
+    } else {
+      return lvl;
+    }
   }
 
   static Future<int> getCurrentLevel() async {
