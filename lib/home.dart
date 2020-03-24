@@ -23,8 +23,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
 
-    
-
     _preloadCategories();
 
     super.initState();
@@ -69,7 +67,6 @@ class _HomeState extends State<Home> {
             ),
             CupertinoButton(
               onPressed: () {
-                GetCategories.getCategories();
               },
               child: Container(
                 child: Center(

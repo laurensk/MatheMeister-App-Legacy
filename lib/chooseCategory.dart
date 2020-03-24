@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mathemeister/api/getCategories.dart';
+import 'package:mathemeister/game.dart';
 import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/utils/ui/bottomButton.dart';
 import 'package:mathemeister/utils/ui/colorUtils.dart';
@@ -160,10 +161,6 @@ class _ChooseCategoryState extends State<ChooseCategory> {
   }
 
   _categorySelected(Category category, int index) async {
-    print("you have selected the category: " +
-        index.toString() +
-        " on the server: cat_id: " +
-        category.catId);
 
     showDialog(
       context: context,
@@ -178,11 +175,19 @@ class _ChooseCategoryState extends State<ChooseCategory> {
       },
     );
 
-  // create getQuestions.dart and get 10 questions for this category
+    // create getQuestions.dart and get 10 questions for this category
     GetCategories.getCategories().then((result) {
       print(result);
       Navigator.pop(context);
       // navigator push Game(questions)
+      Navigator.pushAndRemoveUntil(
+        context,
+        CupertinoPageRoute(
+          fullscreenDialog: false,
+          builder: (context) => Game(),
+        ),
+        ModalRoute.withName('/'),
+      );
     });
   }
 }

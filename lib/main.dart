@@ -14,6 +14,7 @@ class MatheMeister extends StatelessWidget {
       ],
       title: "MatheMeister",
       home: AppDelegate(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
