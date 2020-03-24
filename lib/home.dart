@@ -23,6 +23,8 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
 
+    
+
     _preloadCategories();
 
     super.initState();

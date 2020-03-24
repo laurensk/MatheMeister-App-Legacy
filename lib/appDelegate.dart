@@ -15,7 +15,7 @@ class _AppDelegateState extends State<AppDelegate> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<int>(
-        future: SharedPrefsUtils.getCurrentLevel(),
+        future: SharedPrefsUtils.checkAndGetCurrentLevel(),
         builder: (BuildContext context, AsyncSnapshot<int> level) {
           switch (level.connectionState) {
             case ConnectionState.done:
