@@ -8,6 +8,7 @@ import 'package:mathemeister/models/apiCall.dart';
 import 'package:mathemeister/models/apiError.dart';
 import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/models/question.dart';
+import 'package:mathemeister/utils/ui/alertUtils.dart';
 import 'package:mathemeister/utils/ui/bottomButton.dart';
 import 'package:mathemeister/utils/ui/colorUtils.dart';
 
@@ -193,7 +194,17 @@ class _ChooseCategoryState extends State<ChooseCategory> {
 
     ApiRequests.getQuestionsCat(index).then((apiCall) {
       if (apiCall.error) {
-        print("error!!");
+        Navigator.pop(context);
+        setState(() {
+          _selected = null;
+        });
+        switch (apiCall.apiError.errorCode) {
+          case 702:
+            AlertUtils.showApiErrorAlert(context, "Zu wenig Fragen", "Diese Kategorie hat zu wenig Fragen, um ein Spiel zu starten", "OK");
+            break;
+          default:
+            AlertUtils.showUnknownErrorAlert(context, apiCall.apiError);
+        }
       } else {
         List<Question> questions = apiCall.data;
         Navigator.pop(context);
