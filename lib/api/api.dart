@@ -22,7 +22,7 @@ class Api {
         data: response
       );
     } else {
-      ApiError apiError = jsonDecode(response.body).map((data) => ApiError.fromJson(data));
+      ApiError apiError = ApiError.fromJson(json.decode(response.body));
       apiCall = ApiCall(
         error: true,
         apiError: apiError,
