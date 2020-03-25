@@ -20,7 +20,7 @@ class ApiRequests {
     return apiCall;
   }
 
-  static Future<ApiCall> getQuestionsCat(int catId) async {
+  static Future<ApiCall> getQuestionsCat(String catId) async {
     Map postDataMap = {
       'action': 'ten-for-category',
       'catId': '$catId',

@@ -192,7 +192,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
       },
     );
 
-    ApiRequests.getQuestionsCat(index).then((apiCall) {
+    ApiRequests.getQuestionsCat(category.catId).then((apiCall) {
       if (apiCall.error) {
         Navigator.pop(context);
         setState(() {
