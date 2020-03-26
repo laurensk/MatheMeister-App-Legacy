@@ -208,6 +208,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
       } else {
         List<Question> questions = apiCall.data;
         Navigator.pop(context);
+        // TODO: Push a not dismissable view
         Navigator.pushAndRemoveUntil(
           context,
           CupertinoPageRoute(
