@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mathemeister/utils/debugUtils.dart';
 import 'package:mathemeister/utils/ui/bottomButton.dart';
-import 'package:mathemeister/utils/ui/colorUtils.dart';
 import 'package:swipedetector/swipedetector.dart';
 
 class AppInfos extends StatefulWidget {

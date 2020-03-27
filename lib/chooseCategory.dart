@@ -1,16 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mathemeister/api/apiRequests.dart';
 import 'package:mathemeister/game.dart';
 import 'package:mathemeister/models/apiCall.dart';
-import 'package:mathemeister/models/apiError.dart';
 import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/models/question.dart';
 import 'package:mathemeister/utils/ui/alertUtils.dart';
 import 'package:mathemeister/utils/ui/bottomButton.dart';
-import 'package:mathemeister/utils/ui/colorUtils.dart';
 
 class ChooseCategory extends StatefulWidget {
   final List<Category> categories;
@@ -191,6 +187,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
         );
       },
     );
+
 
     ApiRequests.getQuestionsCat(category.catId).then((apiCall) {
       if (apiCall.error) {

@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mathemeister/appDelegate.dart';
-import 'package:mathemeister/home.dart';
 import 'package:mathemeister/models/question.dart';
-import 'package:mathemeister/utils/ui/colorUtils.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
 
