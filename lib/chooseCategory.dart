@@ -39,8 +39,8 @@ class _ChooseCategoryState extends State<ChooseCategory> {
             child: widget.categories == null
                 ? FutureBuilder<ApiCall>(
                     future: ApiRequests.getCategories(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<ApiCall> apiCall) {
+                    builder:
+                        (BuildContext context, AsyncSnapshot<ApiCall> apiCall) {
                       switch (apiCall.connectionState) {
                         case ConnectionState.done:
                           return _listView(context, apiCall.data.data);
@@ -188,7 +188,6 @@ class _ChooseCategoryState extends State<ChooseCategory> {
       },
     );
 
-
     ApiRequests.getQuestionsCat(category.catId).then((apiCall) {
       if (apiCall.error) {
         Navigator.pop(context);
@@ -197,7 +196,11 @@ class _ChooseCategoryState extends State<ChooseCategory> {
         });
         switch (apiCall.apiError.errorCode) {
           case 702:
-            AlertUtils.showApiErrorAlert(context, "Zu wenig Fragen", "Diese Kategorie hat zu wenig Fragen, um ein Spiel zu starten", "OK");
+            AlertUtils.showApiErrorAlert(
+                context,
+                "Zu wenig Fragen",
+                "Diese Kategorie hat zu wenig Fragen, um ein Spiel zu starten",
+                "OK");
             break;
           default:
             AlertUtils.showUnknownErrorAlert(context, apiCall.apiError);
@@ -205,15 +208,12 @@ class _ChooseCategoryState extends State<ChooseCategory> {
       } else {
         List<Question> questions = apiCall.data;
         Navigator.pop(context);
-        // TODO: Push a not dismissable view
-        Navigator.pushAndRemoveUntil(
-          context,
-          CupertinoPageRoute(
-            fullscreenDialog: false,
-            builder: (context) => Game(questions: questions),
-          ),
-          ModalRoute.withName('/'),
-        );
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              fullscreenDialog: false,
+              builder: (context) => Game(questions: questions, answeredQuestions: 0, correctQuestions: 0),
+            ));
       }
     });
   }

@@ -11,6 +11,9 @@ class Question {
   String catId;
   String catName;
 
+  bool answered = false;
+  bool correct = false;
+
   Question.fromJson(Map<String, dynamic> jsonMap) {
     this.queId = jsonMap['que_id'];
     this.queLevel = jsonMap['que_level'];

@@ -2,24 +2,36 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mathemeister/appDelegate.dart';
 import 'package:mathemeister/models/question.dart';
+import 'package:mathemeister/models/questionAnswer.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Game extends StatefulWidget {
   final List<Question> questions;
+  final int answeredQuestions;
+  final int correctQuestions;
 
-  Game({this.questions});
+  Game({this.questions, this.answeredQuestions, this.correctQuestions});
 
   @override
   _GameState createState() => _GameState();
 }
 
 class _GameState extends State<Game> {
-  int _selected;
+  QuestionAnswer _selected;
+  Question _currentQuestion;
+
+  int _answeredQuestions;
+  int _correctQuestions;
 
   @override
   void initState() {
-    // TODO: implement initState
+    _answeredQuestions = widget.answeredQuestions;
+    _correctQuestions = widget.correctQuestions;
+
+    _currentQuestion = widget.questions[widget.answeredQuestions];
+    _currentQuestion.queAnswers.shuffle();
+
     super.initState();
   }
 
@@ -66,36 +78,44 @@ class _GameState extends State<Game> {
             )
           ],
         ),
-        body: Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(padding: EdgeInsets.symmetric(vertical: 15),),
-            _questionBox(),
-            Expanded(flex: 2, child: Container(),),
-            _answerCard(0, "A", "Versuchen, durch den Nenner zu dividieren"),
-            _answerCard(1, "B", "Kreuzweise multiplizieren, um auf einen Bruch zusammenzufassen"),
-            _answerCard(2, "C", "Auf gemeinsamen Nenner bringen, indem man im 1. Schritt versucht, herauszuheben"),
-            _answerCard(3, "D", "Verzweifelt PhotoMath öffnen"),
-            Expanded(flex: 1, child: Container(),),
-            _nextButton(),
-            Padding(padding: EdgeInsets.symmetric(vertical: 15),),
-          ],
-        )));
+        body: WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Center(
+                child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                ),
+                _questionBox(),
+                Expanded(
+                  flex: 2,
+                  child: Container(),
+                ),
+                _answerCard(0, "A", _currentQuestion.queAnswers[0]),
+                _answerCard(1, "B", _currentQuestion.queAnswers[1]),
+                _answerCard(2, "C", _currentQuestion.queAnswers[2]),
+                _answerCard(3, "D", _currentQuestion.queAnswers[3]),
+                Expanded(
+                  flex: 1,
+                  child: Container(),
+                ),
+                _nextButton(),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                ),
+              ],
+            ))));
   }
 
   Widget _nextButton() {
     return CupertinoButton(
       onPressed: () {
         if (_selected != null) {
-          print("you pressed answer id: "+_selected.toString());
-          setState(() {
-            _selected = null;
-          });
-          // did press something
-        } else {
-          print("fuck u");
+          _answerSelected(_selected);
         }
       },
       pressedOpacity: _selected != null ? 0.4 : null,
@@ -167,7 +187,7 @@ class _GameState extends State<Game> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Text(
-              "Frage 8 von 10",
+              "Frage ${widget.answeredQuestions + 1} von 10",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: "Arial Rounded MT Bold",
@@ -175,9 +195,11 @@ class _GameState extends State<Game> {
                 color: Color(0xff313131),
               ),
             ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 5),),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 5),
+            ),
             Text(
-              "Du hast einen mehrteiligen Bruchterm vor dir, den du zu vereinfachen hast. Wie gehst du am besten vor?",
+              _currentQuestion.queQuestion,
               style: TextStyle(
                 fontFamily: "Arial Rounded MT Bold",
                 fontSize: 17,
@@ -189,7 +211,7 @@ class _GameState extends State<Game> {
               child: Container(),
             ),
             Text(
-              "Bruchterme",
+              _currentQuestion.catName,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: "Arial Rounded MT Bold",
@@ -203,10 +225,10 @@ class _GameState extends State<Game> {
     );
   }
 
-  Widget _answerCard(int id, String letter, String answer) {
+  Widget _answerCard(int id, String letter, QuestionAnswer questionAnswer) {
     return Card(
         elevation: 4,
-        shape: _selected == id
+        shape: _selected == questionAnswer
             ? RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
                 side: BorderSide(
@@ -221,7 +243,7 @@ class _GameState extends State<Game> {
         child: InkWell(
             onTap: () {
               setState(() {
-                _selected = id;
+                _selected = questionAnswer;
               });
             },
             child: Container(
@@ -266,7 +288,7 @@ class _GameState extends State<Game> {
                         Container(
                             width: MediaQuery.of(context).size.width - 130,
                             child: Text(
-                              answer,
+                              questionAnswer.answer,
                               style: TextStyle(
                                 fontFamily: "Arial Rounded MT Bold",
                                 fontSize: 14,
@@ -282,37 +304,10 @@ class _GameState extends State<Game> {
   Widget _questionVisualizer() {
     List<Widget> dots = List<Widget>();
 
-    // do a for loop for all questions
-
-    dots.add(_questionDot(true, true));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(true, false));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(true, true));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(true, false));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(true, true));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(true, false));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(true, false));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(false, false));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(false, false));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-
-    dots.add(_questionDot(false, false));
-    dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
+    for (var question in widget.questions) {
+      dots.add(_questionDot(question.answered, question.correct));
+      dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -346,6 +341,43 @@ class _GameState extends State<Game> {
         shape: BoxShape.circle,
       ),
     );
+  }
+
+  _answerSelected(QuestionAnswer questionAnswer) {
+    if (questionAnswer.correctAnswer) {
+      widget.questions[widget.answeredQuestions].answered = true;
+      widget.questions[widget.answeredQuestions].correct = true;
+      _currentQuestion.answered = true;
+      _currentQuestion.correct = true;
+      setState(() {
+        _answeredQuestions += 1;
+        _correctQuestions += 1;
+      });
+    } else {
+      widget.questions[widget.answeredQuestions].answered = true;
+      widget.questions[widget.answeredQuestions].correct = false;
+      _currentQuestion.answered = true;
+      _currentQuestion.correct = false;
+      setState(() {
+        _answeredQuestions += 1;
+      });
+    }
+  }
+
+  _nextQuestion() {
+    if (_answeredQuestions <= 9) {
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+            fullscreenDialog: false,
+            builder: (context) => Game(
+                questions: widget.questions,
+                answeredQuestions: _answeredQuestions,
+                correctQuestions: _correctQuestions),
+          ));
+    } else {
+      print("du bist fertig");
+    }
   }
 
   _quit() {
@@ -408,6 +440,16 @@ class _GameState extends State<Game> {
               onPressed: () {
                 Navigator.pop(context);
                 _sendMail("MatheMeister%3A+Problem+melden+%28App%29");
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: const Text(
+                'debug: next question',
+                style: TextStyle(color: Color(0xff4bc475)),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                _nextQuestion();
               },
             )
           ],
