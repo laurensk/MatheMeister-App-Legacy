@@ -1,10 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mathemeister/appDelegate.dart';
+import 'package:page_transition/page_transition.dart';
 
 class BottomButtonStd extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    _onClick() {
+      Navigator.pop(context);
+    }
+
     return BottomButton(
+      onClick: _onClick,
       title: "Zurück",
       backgroundColor: Colors.white,
       textStyle: TextStyle(
@@ -20,8 +28,9 @@ class BottomButton extends StatelessWidget {
   final String title;
   final Color backgroundColor;
   final TextStyle textStyle;
+  final Function onClick;
 
-  BottomButton({this.title, this.backgroundColor, this.textStyle});
+  BottomButton({this.title, this.backgroundColor, this.textStyle, this.onClick});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +40,7 @@ class BottomButton extends StatelessWidget {
       children: <Widget>[
         CupertinoButton(
           onPressed: () {
-            Navigator.pop(context);
+            onClick();
           },
           child: Container(
             child: Center(child: Text(title, style: textStyle)),

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:mathemeister/appDelegate.dart';
 import 'package:mathemeister/models/question.dart';
 import 'package:mathemeister/models/questionAnswer.dart';
+import 'package:mathemeister/results.dart';
+import 'package:mathemeister/utils/ui/questionVisualizer.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -18,6 +20,9 @@ class Game extends StatefulWidget {
 }
 
 class _GameState extends State<Game> {
+  bool _selectionAllowed = true;
+  bool _highlightAnswers = false;
+
   QuestionAnswer _selected;
   Question _currentQuestion;
 
@@ -39,7 +44,7 @@ class _GameState extends State<Game> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: _questionVisualizer(),
+          title: QuestionVisualizer.questionVisualizer(widget.questions),
           backgroundColor: Color(0xff4bc475),
           leading: CupertinoButton(
             child: Container(
@@ -103,12 +108,110 @@ class _GameState extends State<Game> {
                   flex: 1,
                   child: Container(),
                 ),
-                _nextButton(),
+                _bottomButton(),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 15),
                 ),
               ],
             ))));
+  }
+
+  Widget _bottomButton() {
+    if (_currentQuestion.answered) {
+      if (_currentQuestion.correct) {
+        return _correctButton();
+      } else {
+        return _incorrectButton();
+      }
+    } else {
+      return _nextButton();
+    }
+  }
+
+  Widget _correctButton() {
+    return CupertinoButton(
+      onPressed: () {
+        _nextQuestion();
+      },
+      child: Container(
+        child: Center(
+            child: Text(
+          "Richtig!",
+          style: TextStyle(
+            fontFamily: "Arial Rounded MT Bold",
+            fontSize: 21,
+            shadows: [
+              Shadow(
+                offset: Offset(0.00, 3.00),
+                color: Color(0xff000000).withOpacity(0.16),
+                blurRadius: 6,
+              ),
+            ],
+            color: Color(0xffffffff),
+          ),
+        )),
+        height: 50,
+        width: MediaQuery.of(context).size.width - 100,
+        decoration: BoxDecoration(
+          color: Color(0xff64C133),
+          border: Border.all(
+            width: 2.00,
+            color: Color(0xff64C133),
+          ),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(2.00, 2.00),
+              color: Color(0xff000000).withOpacity(0.16),
+              blurRadius: 6,
+            ),
+          ],
+          borderRadius: BorderRadius.circular(30.00),
+        ),
+      ),
+    );
+  }
+
+  Widget _incorrectButton() {
+    return CupertinoButton(
+      onPressed: () {
+        _nextQuestion();
+      },
+      child: Container(
+        child: Center(
+            child: Text(
+          "Falsch!",
+          style: TextStyle(
+            fontFamily: "Arial Rounded MT Bold",
+            fontSize: 21,
+            shadows: [
+              Shadow(
+                offset: Offset(0.00, 3.00),
+                color: Color(0xff000000).withOpacity(0.16),
+                blurRadius: 6,
+              ),
+            ],
+            color: Color(0xffffffff),
+          ),
+        )),
+        height: 50,
+        width: MediaQuery.of(context).size.width - 100,
+        decoration: BoxDecoration(
+          color: Color(0xffF44545),
+          border: Border.all(
+            width: 2.00,
+            color: Color(0xffF44545),
+          ),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(2.00, 2.00),
+              color: Color(0xff000000).withOpacity(0.16),
+              blurRadius: 6,
+            ),
+          ],
+          borderRadius: BorderRadius.circular(30.00),
+        ),
+      ),
+    );
   }
 
   Widget _nextButton() {
@@ -243,7 +346,9 @@ class _GameState extends State<Game> {
         child: InkWell(
             onTap: () {
               setState(() {
-                _selected = questionAnswer;
+                if (_selectionAllowed) {
+                  _selected = questionAnswer;
+                }
               });
             },
             child: Container(
@@ -301,49 +406,13 @@ class _GameState extends State<Game> {
                 )))));
   }
 
-  Widget _questionVisualizer() {
-    List<Widget> dots = List<Widget>();
-
-    for (var question in widget.questions) {
-      dots.add(_questionDot(question.answered, question.correct));
-      dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: dots,
-    );
-  }
-
-  Widget _questionDot(bool answered, bool correct) {
-    return Container(
-      child: answered
-          ? Icon(correct ? Icons.check : Icons.close, size: 15)
-          : Container(),
-      height: 20,
-      width: 20,
-      decoration: BoxDecoration(
-        color: answered
-            ? (correct ? Color(0xff64C133) : Color(0xffF44545))
-            : Color(0xffEFEFEF),
-        border: Border.all(
-          width: 2,
-          color: Color(0xffffffff),
-        ),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(5.00, 3.00),
-            color: Color(0xff000000).withOpacity(0.16),
-            blurRadius: 6,
-          ),
-        ],
-        shape: BoxShape.circle,
-      ),
-    );
-  }
-
   _answerSelected(QuestionAnswer questionAnswer) {
+    _selectionAllowed = false;
+
+    setState(() {
+      _highlightAnswers = true;
+    });
+
     if (questionAnswer.correctAnswer) {
       widget.questions[widget.answeredQuestions].answered = true;
       widget.questions[widget.answeredQuestions].correct = true;
@@ -366,18 +435,34 @@ class _GameState extends State<Game> {
 
   _nextQuestion() {
     if (_answeredQuestions <= 9) {
-      Navigator.push(
-          context,
-          CupertinoPageRoute(
-            fullscreenDialog: false,
-            builder: (context) => Game(
-                questions: widget.questions,
-                answeredQuestions: _answeredQuestions,
-                correctQuestions: _correctQuestions),
-          ));
+      _presentQuestionView();
     } else {
-      print("du bist fertig");
+      _presentResultsView();
     }
+  }
+
+  _presentQuestionView() {
+    Navigator.pushReplacement(
+        context,
+        CupertinoPageRoute(
+          fullscreenDialog: false,
+          builder: (context) => Game(
+              questions: widget.questions,
+              answeredQuestions: _answeredQuestions,
+              correctQuestions: _correctQuestions),
+        ));
+  }
+
+  _presentResultsView() {
+    Navigator.pushReplacement(
+        context,
+        CupertinoPageRoute(
+          fullscreenDialog: false,
+          builder: (context) => Results(
+              questions: widget.questions,
+              answeredQuestions: _answeredQuestions,
+              correctQuestions: _correctQuestions),
+        ));
   }
 
   _quit() {
