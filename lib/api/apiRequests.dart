@@ -37,4 +37,21 @@ class ApiRequests {
 
     return apiCall;
   }
+
+  static Future<ApiCall> getQuestionsLvl(int level) async {
+    Map postDataMap = {
+      'action': 'ten-for-level',
+      'level': '$level',
+    };
+
+    ApiCall apiCall = await Api.getApiResponse(postDataMap);
+
+    if (!apiCall.error && apiCall.data != null) {
+      apiCall.data = (jsonDecode(apiCall.data.body) as List)
+          .map((data) => Question.fromJson(data))
+          .toList();
+    }
+
+    return apiCall;
+  }
 }

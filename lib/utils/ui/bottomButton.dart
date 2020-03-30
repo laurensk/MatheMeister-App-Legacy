@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mathemeister/appDelegate.dart';
-import 'package:page_transition/page_transition.dart';
 
 class BottomButtonStd extends StatelessWidget {
   @override

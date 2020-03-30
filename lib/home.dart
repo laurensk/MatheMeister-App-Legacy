@@ -4,9 +4,12 @@ import 'package:mathemeister/api/apiRequests.dart';
 import 'package:mathemeister/chooseCategory.dart';
 import 'package:mathemeister/models/apiCall.dart';
 import 'package:mathemeister/models/category.dart';
+import 'package:mathemeister/utils/ui/alertUtils.dart';
 import 'package:mathemeister/utils/ui/colorUtils.dart';
 
 import 'appInfos.dart';
+import 'game.dart';
+import 'models/question.dart';
 
 class Home extends StatefulWidget {
   final int level;
@@ -69,6 +72,7 @@ class _HomeState extends State<Home> {
             ),
             CupertinoButton(
               onPressed: () {
+                _playLevel(widget.level);
               },
               child: Container(
                 child: Center(
@@ -181,5 +185,47 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  _playLevel(int level) async {
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          content: CupertinoActivityIndicator(
+            animating: true,
+            radius: 15,
+          ),
+        );
+      },
+    );
+
+    ApiRequests.getQuestionsLvl(level).then((apiCall) {
+      if (apiCall.error) {
+        Navigator.pop(context);
+        switch (apiCall.apiError.errorCode) {
+          case 702:
+            AlertUtils.showApiErrorAlert(
+                context,
+                "Zu wenig Fragen",
+                "In diesem Level sind nicht genug Fragen, um ein Spiel zu starten",
+                "OK");
+            break;
+          default:
+            AlertUtils.showUnknownApiErrorAlert(context, apiCall.apiError);
+        }
+      } else {
+        List<Question> questions = apiCall.data;
+        Navigator.pop(context);
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              fullscreenDialog: false,
+              builder: (context) => Game(questions: questions, answeredQuestions: 0, correctQuestions: 0, category: null, level: level,),
+            ));
+      }
+    });
   }
 }

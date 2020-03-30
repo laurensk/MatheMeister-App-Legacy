@@ -23,4 +23,10 @@ class SharedPrefsUtils {
     return prefs.setInt("level", level);
   }
 
+  static Future<int> increaseLevelByOne() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("level", prefs.getInt("level") + 1);
+    return prefs.get("level");
+  }
+
 }

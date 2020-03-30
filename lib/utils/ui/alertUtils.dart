@@ -25,7 +25,7 @@ class AlertUtils {
     );
   }
 
-  static showUnknownErrorAlert(BuildContext context, ApiError apiError) {
+  static showUnknownApiErrorAlert(BuildContext context, ApiError apiError) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -33,6 +33,28 @@ class AlertUtils {
         return CupertinoAlertDialog(
           title: Text("Fehler"),
           content: Text("Ein unbekannter Fehler ist aufgetreten. Versuche es später noch einmal.\n\n${apiError.errorCode}: ${apiError.errorDesc}"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  static showUnknownErrorAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text("Fehler"),
+          content: Text("Ein unbekannter Fehler ist aufgetreten. Versuche es später noch einmal."),
           actions: <Widget>[
             CupertinoDialogAction(
               isDefaultAction: true,

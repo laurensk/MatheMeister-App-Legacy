@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mathemeister/appDelegate.dart';
+import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/models/question.dart';
 import 'package:mathemeister/models/questionAnswer.dart';
 import 'package:mathemeister/results.dart';
@@ -12,8 +13,10 @@ class Game extends StatefulWidget {
   final List<Question> questions;
   final int answeredQuestions;
   final int correctQuestions;
+  final Category category;
+  final int level;
 
-  Game({this.questions, this.answeredQuestions, this.correctQuestions});
+  Game({this.questions, this.answeredQuestions, this.correctQuestions, this.category, this.level});
 
   @override
   _GameState createState() => _GameState();
@@ -449,7 +452,9 @@ class _GameState extends State<Game> {
           builder: (context) => Game(
               questions: widget.questions,
               answeredQuestions: _answeredQuestions,
-              correctQuestions: _correctQuestions),
+              correctQuestions: _correctQuestions,
+              category: widget.category,
+              level: widget.level),
         ));
   }
 
@@ -461,7 +466,9 @@ class _GameState extends State<Game> {
           builder: (context) => Results(
               questions: widget.questions,
               answeredQuestions: _answeredQuestions,
-              correctQuestions: _correctQuestions),
+              correctQuestions: _correctQuestions,
+              category: widget.category,
+              level: widget.level),
         ));
   }
 
@@ -504,8 +511,8 @@ class _GameState extends State<Game> {
       builder: (BuildContext context) => CupertinoActionSheet(
           title: const Text('Über diese Frage'),
           //message: const Text('Diese Frage wurde von STUEKLER Elke am 24.03.2020 erstellt.'),
-          message: const Text(
-              'Autor: STUEKLER Elke\nDatum: 24.03.2020\nKategorie: Bruchterme'),
+          message: Text(
+              'Autor: ${_currentQuestion.queCreatorFullname}\nDatum: ${_currentQuestion.queCreationDate}\nKategorie: ${_currentQuestion.catName}'),
           actions: <Widget>[
             CupertinoActionSheetAction(
               child: const Text(
@@ -514,7 +521,7 @@ class _GameState extends State<Game> {
               ),
               onPressed: () {
                 Navigator.pop(context);
-                _sendMail("MatheMeister%3A+Problem+melden+%28Frage%29");
+                _sendMail("MatheMeister%3A%20Problem%20melden%20%28Frage%29%20queId${_currentQuestion.queId}");
               },
             ),
             CupertinoActionSheetAction(
@@ -524,17 +531,7 @@ class _GameState extends State<Game> {
               ),
               onPressed: () {
                 Navigator.pop(context);
-                _sendMail("MatheMeister%3A+Problem+melden+%28App%29");
-              },
-            ),
-            CupertinoActionSheetAction(
-              child: const Text(
-                'debug: next question',
-                style: TextStyle(color: Color(0xff4bc475)),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                _nextQuestion();
+                _sendMail("MatheMeister%3A%20Problem%20melden%20%28App%29");
               },
             )
           ],

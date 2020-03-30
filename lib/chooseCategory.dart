@@ -19,11 +19,11 @@ class ChooseCategory extends StatefulWidget {
 class _ChooseCategoryState extends State<ChooseCategory> {
   int _selected;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   // Implement initState
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +203,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
                 "OK");
             break;
           default:
-            AlertUtils.showUnknownErrorAlert(context, apiCall.apiError);
+            AlertUtils.showUnknownApiErrorAlert(context, apiCall.apiError);
         }
       } else {
         List<Question> questions = apiCall.data;
@@ -212,7 +212,7 @@ class _ChooseCategoryState extends State<ChooseCategory> {
             context,
             CupertinoPageRoute(
               fullscreenDialog: false,
-              builder: (context) => Game(questions: questions, answeredQuestions: 0, correctQuestions: 0),
+              builder: (context) => Game(questions: questions, answeredQuestions: 0, correctQuestions: 0, category: category, level: null),
             ));
       }
     });

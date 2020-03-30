@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mathemeister/api/apiRequests.dart';
 import 'package:mathemeister/appDelegate.dart';
+import 'package:mathemeister/game.dart';
+import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/models/question.dart';
-import 'package:mathemeister/utils/ui/colorUtils.dart';
+import 'package:mathemeister/utils/sharedPrefsUtils.dart';
+import 'package:mathemeister/utils/ui/alertUtils.dart';
 import 'package:mathemeister/utils/ui/questionVisualizer.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -10,8 +14,15 @@ class Results extends StatefulWidget {
   final List<Question> questions;
   final int answeredQuestions;
   final int correctQuestions;
+  final Category category;
+  final int level;
 
-  Results({this.questions, this.answeredQuestions, this.correctQuestions});
+  Results(
+      {this.questions,
+      this.answeredQuestions,
+      this.correctQuestions,
+      this.category,
+      this.level});
 
   @override
   _ResultsState createState() => _ResultsState();
@@ -70,12 +81,22 @@ class _ResultsState extends State<Results> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Expanded(flex: 3, child: Container(),),
-              Text("Du hast ${widget.correctQuestions} von ${widget.answeredQuestions} Fragen richtig beantwortet!"),
-              Expanded(flex: 3, child: Container(),),
+              Expanded(
+                flex: 3,
+                child: Container(),
+              ),
+              Text(
+                  "Du hast ${widget.correctQuestions} von ${widget.answeredQuestions} Fragen richtig beantwortet!"),
+              Expanded(
+                flex: 3,
+                child: Container(),
+              ),
               _buttomButtonRetry(),
               _bottomButtonGoHome(),
-              Expanded(flex: 1, child: Container(),),
+              Expanded(
+                flex: 1,
+                child: Container(),
+              ),
             ],
           )),
         ));
@@ -83,7 +104,11 @@ class _ResultsState extends State<Results> {
 
   Widget _buttomButtonRetry() {
     return _buttonBottom(
-      "Erneut versuchen",
+      (widget.category == null)
+          ? _levelPassed()
+              ? "Mit Level ${widget.level} fortfahren"
+              : "Erneut versuchen"
+          : "Kategorie erneut üben",
       Colors.white,
       TextStyle(
         fontFamily: "Arial Rounded MT Bold",
@@ -94,11 +119,20 @@ class _ResultsState extends State<Results> {
     );
   }
 
+  bool _levelPassed() {
+    return (widget.correctQuestions >= 8);
+  }
+
   _retry() {
-    Navigator.pushReplacement(
-        context,
-        PageTransition(
-            type: PageTransitionType.leftToRight, child: AppDelegate()));
+    if (widget.category == null) {
+      if (_levelPassed()) {
+        _nextLevel();
+      } else {
+        _retryLevel();
+      }
+    } else {
+      replayCategory();
+    }
   }
 
   Widget _bottomButtonGoHome() {
@@ -157,5 +191,157 @@ class _ResultsState extends State<Results> {
         )
       ],
     );
+  }
+
+  _retryLevel() async {
+    if (await SharedPrefsUtils.getCurrentLevel() == widget.level) {
+      int level = widget.level;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            content: CupertinoActivityIndicator(
+              animating: true,
+              radius: 15,
+            ),
+          );
+        },
+      );
+
+      ApiRequests.getQuestionsLvl(level).then((apiCall) {
+        if (apiCall.error) {
+          Navigator.pop(context);
+          switch (apiCall.apiError.errorCode) {
+            case 702:
+              AlertUtils.showApiErrorAlert(
+                  context,
+                  "Zu wenig Fragen",
+                  "In diesem Level sind nicht genug Fragen, um ein Spiel zu starten",
+                  "OK");
+              break;
+            default:
+              AlertUtils.showUnknownApiErrorAlert(context, apiCall.apiError);
+          }
+        } else {
+          List<Question> questions = apiCall.data;
+          Navigator.pop(context);
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                fullscreenDialog: false,
+                builder: (context) => Game(
+                  questions: questions,
+                  answeredQuestions: 0,
+                  correctQuestions: 0,
+                  category: null,
+                  level: level,
+                ),
+              ));
+        }
+      });
+    } else {
+      AlertUtils.showUnknownErrorAlert(context);
+    }
+  }
+
+  _nextLevel() async {
+    if (await SharedPrefsUtils.increaseLevelByOne() == widget.level + 1) {
+      int level = widget.level + 1;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return CupertinoAlertDialog(
+            content: CupertinoActivityIndicator(
+              animating: true,
+              radius: 15,
+            ),
+          );
+        },
+      );
+
+      ApiRequests.getQuestionsLvl(level).then((apiCall) {
+        if (apiCall.error) {
+          Navigator.pop(context);
+          switch (apiCall.apiError.errorCode) {
+            case 702:
+              AlertUtils.showApiErrorAlert(
+                  context,
+                  "Zu wenig Fragen",
+                  "In diesem Level sind nicht genug Fragen, um ein Spiel zu starten",
+                  "OK");
+              break;
+            default:
+              AlertUtils.showUnknownApiErrorAlert(context, apiCall.apiError);
+          }
+        } else {
+          List<Question> questions = apiCall.data;
+          Navigator.pop(context);
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                fullscreenDialog: false,
+                builder: (context) => Game(
+                  questions: questions,
+                  answeredQuestions: 0,
+                  correctQuestions: 0,
+                  category: null,
+                  level: level,
+                ),
+              ));
+        }
+      });
+    } else {
+      AlertUtils.showUnknownErrorAlert(context);
+    }
+  }
+
+  replayCategory() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          content: CupertinoActivityIndicator(
+            animating: true,
+            radius: 15,
+          ),
+        );
+      },
+    );
+
+    ApiRequests.getQuestionsCat(widget.category.catId).then((apiCall) {
+      if (apiCall.error) {
+        Navigator.pop(context);
+        switch (apiCall.apiError.errorCode) {
+          case 702:
+            AlertUtils.showApiErrorAlert(
+                context,
+                "Zu wenig Fragen",
+                "Diese Kategorie hat zu wenig Fragen, um ein Spiel zu starten",
+                "OK");
+            break;
+          default:
+            AlertUtils.showUnknownApiErrorAlert(context, apiCall.apiError);
+        }
+      } else {
+        List<Question> questions = apiCall.data;
+        Navigator.pop(context);
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              fullscreenDialog: false,
+              builder: (context) => Game(
+                  questions: questions,
+                  answeredQuestions: 0,
+                  correctQuestions: 0,
+                  category: widget.category,
+                  level: null),
+            ));
+      }
+    });
   }
 }
