@@ -25,7 +25,7 @@ class Question {
     this.queCreationDate = jsonMap['que_creationDate'];
     this.queCreatorUuid = jsonMap['queCreatorUuid'];
     this.queCreatorFullname = jsonMap['que_creatorFullname'];
-    this.catId = jsonMap['que_catName'];
-    this.catName = jsonMap['que_catId'];
+    this.catId = jsonMap['que_catId'];
+    this.catName = jsonMap['que_catName'];
   }
 }
