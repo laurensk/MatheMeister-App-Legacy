@@ -130,27 +130,6 @@ class AppInfosState extends State<AppInfos> {
                       color: Color(0xff40a764),
                       fontSize: 15,
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 30),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      CupertinoButton(
-                        child: Text("set level to", style: TextStyle(color: Color(0xffF2F2F2)),),
-                        onPressed: () {
-                          DebugUtils.setLevelTo(context);
-                        },
-                      ),
-                      CupertinoButton(
-                        child: Text("reset levels", style: TextStyle(color: Color(0xffF2F2F2)),),
-                        onPressed: () {
-                          DebugUtils.resetLevels(context);
-                        },
-                      )
-                    ],
                   )
                 ],
               ),
