@@ -9,6 +9,7 @@ import 'package:mathemeister/utils/sharedPrefsUtils.dart';
 import 'package:mathemeister/utils/ui/alertUtils.dart';
 import 'package:mathemeister/utils/ui/questionVisualizer.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Results extends StatefulWidget {
   final List<Question> questions;
@@ -29,12 +30,39 @@ class Results extends StatefulWidget {
 }
 
 class _ResultsState extends State<Results> {
+  int minCorrectQuestionsToPassLevel = 8;
+  bool congrats;
+  int currentLevel;
+
+  @override
+  void initState() {
+    congrats = widget.correctQuestions >= minCorrectQuestionsToPassLevel;
+
+    if (widget.level != null) {
+      currentLevel = widget.level;
+      if (widget.correctQuestions >= minCorrectQuestionsToPassLevel) {
+        _increaseLevel();
+        setState(() {
+          currentLevel += 1;
+        });
+      }
+    }
+
+    super.initState();
+  }
+
+  _increaseLevel() async {
+    final currentLevel = await SharedPrefsUtils.getCurrentLevel();
+    final newLevel = currentLevel + 1;
+    SharedPrefsUtils.setCurrentLevel(newLevel);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: QuestionVisualizer.questionVisualizer(widget.questions),
-          backgroundColor: Color(0xff4bc475),
+          backgroundColor: congrats ? Color(0xff4bc475) : Color(0xffC62424),
           leading: CupertinoButton(
             child: Container(
               child: Icon(Icons.home, color: Colors.white),
@@ -49,7 +77,7 @@ class _ResultsState extends State<Results> {
               ),
             ),
             onPressed: () {
-              //_quit();
+              _goHome();
             },
           ),
           actions: <Widget>[
@@ -67,7 +95,7 @@ class _ResultsState extends State<Results> {
                 ),
               ),
               onPressed: () {
-                //_menu();
+                _menu();
               },
             )
           ],
@@ -82,11 +110,55 @@ class _ResultsState extends State<Results> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Expanded(
-                flex: 3,
+                flex: 2,
+                child: Container(),
+              ),
+              Image.asset(
+                  congrats
+                      ? "assets/results/congratulations.png"
+                      : "assets/results/gameover.png",
+                  width: MediaQuery.of(context).size.width / 2),
+              Expanded(
+                flex: 2,
                 child: Container(),
               ),
               Text(
-                  "Du hast ${widget.correctQuestions} von ${widget.answeredQuestions} Fragen richtig beantwortet!"),
+                congrats ? "Gratulation!" : "Schade!",
+                style: TextStyle(
+                  fontFamily: "Arial Rounded MT Bold",
+                  fontSize: 30,
+                  color: congrats ? Color(0xff40a764) : Color(0xffC62424),
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: Container(),
+              ),
+              Text("Du hast",
+                  style: TextStyle(
+                    fontFamily: "Arial Rounded MT Bold",
+                    fontSize: 15,
+                    color: congrats ? Color(0xff40a764) : Color(0xffC62424),
+                  )),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 5),
+              ),
+              Text(
+                  "${widget.correctQuestions} von ${widget.answeredQuestions} Fragen",
+                  style: TextStyle(
+                    fontFamily: "Arial Rounded MT Bold",
+                    fontSize: 25,
+                    color: congrats ? Color(0xff40a764) : Color(0xffC62424),
+                  )),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 5),
+              ),
+              Text("richtig beantwortet.",
+                  style: TextStyle(
+                    fontFamily: "Arial Rounded MT Bold",
+                    fontSize: 15,
+                    color: congrats ? Color(0xff40a764) : Color(0xffC62424),
+                  )),
               Expanded(
                 flex: 3,
                 child: Container(),
@@ -94,7 +166,7 @@ class _ResultsState extends State<Results> {
               _buttomButtonRetry(),
               _bottomButtonGoHome(),
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Container(),
               ),
             ],
@@ -106,14 +178,14 @@ class _ResultsState extends State<Results> {
     return _buttonBottom(
       (widget.category == null)
           ? _levelPassed()
-              ? "Mit Level ${widget.level} fortfahren"
+              ? "Mit Level $currentLevel fortfahren"
               : "Erneut versuchen"
           : "Kategorie erneut üben",
       Colors.white,
       TextStyle(
         fontFamily: "Arial Rounded MT Bold",
         fontSize: 21,
-        color: Color(0xff40a764),
+        color: congrats ? Color(0xff40a764) : Color(0xffC62424),
       ),
       _retry,
     );
@@ -125,11 +197,7 @@ class _ResultsState extends State<Results> {
 
   _retry() {
     if (widget.category == null) {
-      if (_levelPassed()) {
-        _nextLevel();
-      } else {
-        _retryLevel();
-      }
+      _playLevel();
     } else {
       replayCategory();
     }
@@ -137,12 +205,12 @@ class _ResultsState extends State<Results> {
 
   Widget _bottomButtonGoHome() {
     return _buttonBottom(
-      "Zurück zum Menu",
+      "Zurück zum Menü",
       Colors.white,
       TextStyle(
         fontFamily: "Arial Rounded MT Bold",
         fontSize: 21,
-        color: Color(0xff40a764),
+        color: congrats ? Color(0xff40a764) : Color(0xffC62424),
       ),
       _goHome,
     );
@@ -185,118 +253,56 @@ class _ResultsState extends State<Results> {
               borderRadius: BorderRadius.circular(30.00),
             ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: 55),
         )
       ],
     );
   }
 
-  _retryLevel() async {
-    if (await SharedPrefsUtils.getCurrentLevel() == widget.level) {
-      int level = widget.level;
+  _playLevel() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          content: CupertinoActivityIndicator(
+            animating: true,
+            radius: 15,
+          ),
+        );
+      },
+    );
 
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return CupertinoAlertDialog(
-            content: CupertinoActivityIndicator(
-              animating: true,
-              radius: 15,
-            ),
-          );
-        },
-      );
-
-      ApiRequests.getQuestionsLvl(level).then((apiCall) {
-        if (apiCall.error) {
-          Navigator.pop(context);
-          switch (apiCall.apiError.errorCode) {
-            case 702:
-              AlertUtils.showApiErrorAlert(
-                  context,
-                  "Zu wenig Fragen",
-                  "In diesem Level sind nicht genug Fragen, um ein Spiel zu starten",
-                  "OK");
-              break;
-            default:
-              AlertUtils.showUnknownApiErrorAlert(context, apiCall.apiError);
-          }
-        } else {
-          List<Question> questions = apiCall.data;
-          Navigator.pop(context);
-          Navigator.push(
-              context,
-              CupertinoPageRoute(
-                fullscreenDialog: false,
-                builder: (context) => Game(
-                  questions: questions,
-                  answeredQuestions: 0,
-                  correctQuestions: 0,
-                  category: null,
-                  level: level,
-                ),
-              ));
+    ApiRequests.getQuestionsLvl(currentLevel).then((apiCall) {
+      if (apiCall.error) {
+        Navigator.pop(context);
+        switch (apiCall.apiError.errorCode) {
+          case 702:
+            AlertUtils.showApiErrorAlert(
+                context,
+                "Zu wenig Fragen",
+                "In diesem Level sind nicht genug Fragen, um ein Spiel zu starten",
+                "OK");
+            break;
+          default:
+            AlertUtils.showUnknownApiErrorAlert(context, apiCall.apiError);
         }
-      });
-    } else {
-      AlertUtils.showUnknownErrorAlert(context);
-    }
-  }
-
-  _nextLevel() async {
-    if (await SharedPrefsUtils.increaseLevelByOne() == widget.level + 1) {
-      int level = widget.level + 1;
-
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return CupertinoAlertDialog(
-            content: CupertinoActivityIndicator(
-              animating: true,
-              radius: 15,
-            ),
-          );
-        },
-      );
-
-      ApiRequests.getQuestionsLvl(level).then((apiCall) {
-        if (apiCall.error) {
-          Navigator.pop(context);
-          switch (apiCall.apiError.errorCode) {
-            case 702:
-              AlertUtils.showApiErrorAlert(
-                  context,
-                  "Zu wenig Fragen",
-                  "In diesem Level sind nicht genug Fragen, um ein Spiel zu starten",
-                  "OK");
-              break;
-            default:
-              AlertUtils.showUnknownApiErrorAlert(context, apiCall.apiError);
-          }
-        } else {
-          List<Question> questions = apiCall.data;
-          Navigator.pop(context);
-          Navigator.push(
-              context,
-              CupertinoPageRoute(
-                fullscreenDialog: false,
-                builder: (context) => Game(
-                  questions: questions,
-                  answeredQuestions: 0,
-                  correctQuestions: 0,
-                  category: null,
-                  level: level,
-                ),
-              ));
-        }
-      });
-    } else {
-      AlertUtils.showUnknownErrorAlert(context);
-    }
+      } else {
+        List<Question> questions = apiCall.data;
+        Navigator.pop(context);
+        Navigator.push(
+            context,
+            CupertinoPageRoute(
+              fullscreenDialog: false,
+              builder: (context) => Game(
+                questions: questions,
+                answeredQuestions: 0,
+                correctQuestions: 0,
+                category: null,
+                level: currentLevel,
+              ),
+            ));
+      }
+    });
   }
 
   replayCategory() async {
@@ -343,5 +349,52 @@ class _ResultsState extends State<Results> {
             ));
       }
     });
+  }
+
+  _menu() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+          title: const Text('Problem melden'),
+          actions: <Widget>[
+            CupertinoActionSheetAction(
+              child: const Text(
+                'Problem mit der App melden',
+                style: TextStyle(color: Color(0xff4bc475)),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                _sendMail("MatheMeister%3A%20Problem%20melden%20%28App%29");
+              },
+            ),
+            CupertinoActionSheetAction(
+              child: const Text(
+                'Problem mit einer Frage melden',
+                style: TextStyle(color: Color(0xff4bc475)),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                _sendMail("MatheMeister%3A%20Problem%20melden%20%28Frage%29");
+              },
+            )
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            child: const Text(
+              'Erledigt',
+              style: TextStyle(color: Color(0xff4bc475)),
+            ),
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          )),
+    );
+  }
+
+  _sendMail(String subject) async {
+    var url = 'mailto:hello@laurensk.at?subject=$subject';
+    if (await canLaunch(url)) {
+      await launch(url);
+    }
   }
 }
