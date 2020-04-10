@@ -1,7 +1,7 @@
 name: mathemeister
 description: mathemeister
 
-version: 1.0.1+101001
+version: 1.0.1+101002
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
