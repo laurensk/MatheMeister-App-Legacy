@@ -114,7 +114,7 @@ class _GameState extends State<Game> {
                 ),
                 _bottomButton(),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: DeviceSize.smallDevice(context) ? 0 : 15),
+                  padding: EdgeInsets.symmetric(vertical: DeviceSize.smallDevice(context) ? 0 : DeviceSize.isIpad(context) ? 0 : 15),
                 ),
               ],
             ))));
@@ -356,7 +356,7 @@ class _GameState extends State<Game> {
               });
             },
             child: Container(
-                height: MediaQuery.of(context).size.width / 5 - 20,
+                height: DeviceSize.isIpad(context) ? 73 : MediaQuery.of(context).size.width / 5 - 20,
                 //height: DeviceSize.smallDevice(context) ? 48 : 73, // TODO: Find corrent value for 20
                 width: MediaQuery.of(context).size.width - (DeviceSize.smallDevice(context) ? 0 : 50),
                 child: Center(
