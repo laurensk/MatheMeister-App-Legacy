@@ -7,6 +7,7 @@ import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/models/question.dart';
 import 'package:mathemeister/utils/ui/alertUtils.dart';
 import 'package:mathemeister/utils/ui/bottomButton.dart';
+import 'package:mathemeister/utils/ui/deviceSize.dart';
 
 class ChooseCategory extends StatefulWidget {
   final List<Category> categories;
@@ -18,12 +19,6 @@ class ChooseCategory extends StatefulWidget {
 
 class _ChooseCategoryState extends State<ChooseCategory> {
   int _selected;
-
-  // @override
-  // void initState() {
-  //   // Implement initState
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -115,12 +110,12 @@ class _ChooseCategoryState extends State<ChooseCategory> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 20)),
+                      Padding(padding: EdgeInsets.symmetric(horizontal: DeviceSize.smallDevice(context) ? 10 : 20)),
                       Text(
                         category.catName,
                         style: TextStyle(
                           fontFamily: "Arial Rounded MT Bold",
-                          fontSize: 18,
+                          fontSize: DeviceSize.smallDevice(context) ? 15 : 18,
                           color: Color(0xff313131),
                         ),
                       ),

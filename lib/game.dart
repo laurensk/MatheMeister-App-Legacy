@@ -5,6 +5,7 @@ import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/models/question.dart';
 import 'package:mathemeister/models/questionAnswer.dart';
 import 'package:mathemeister/results.dart';
+import 'package:mathemeister/utils/ui/deviceSize.dart';
 import 'package:mathemeister/utils/ui/questionVisualizer.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -47,7 +48,7 @@ class _GameState extends State<Game> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: QuestionVisualizer.questionVisualizer(widget.questions),
+          title: QuestionVisualizer.questionVisualizer(widget.questions, context),
           backgroundColor: Color(0xff4bc475),
           leading: CupertinoButton(
             child: Container(
@@ -96,7 +97,7 @@ class _GameState extends State<Game> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: EdgeInsets.symmetric(vertical: DeviceSize.smallDevice(context) ? 5 : 15),
                 ),
                 _questionBox(),
                 Expanded(
@@ -113,7 +114,7 @@ class _GameState extends State<Game> {
                 ),
                 _bottomButton(),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15),
+                  padding: EdgeInsets.symmetric(vertical: DeviceSize.smallDevice(context) ? 0 : 15),
                 ),
               ],
             ))));
@@ -153,7 +154,7 @@ class _GameState extends State<Game> {
             color: Color(0xffffffff),
           ),
         )),
-        height: 50,
+        height: DeviceSize.smallDevice(context) ? 40 : 50,
         width: MediaQuery.of(context).size.width - 100,
         decoration: BoxDecoration(
           color: Color(0xff64C133),
@@ -196,7 +197,7 @@ class _GameState extends State<Game> {
             color: Color(0xffffffff),
           ),
         )),
-        height: 50,
+        height: DeviceSize.smallDevice(context) ? 40 : 50,
         width: MediaQuery.of(context).size.width - 100,
         decoration: BoxDecoration(
           color: Color(0xffF44545),
@@ -248,7 +249,7 @@ class _GameState extends State<Game> {
                   color: Color(0xff7C7C7C),
                 ),
         )),
-        height: 50,
+        height: DeviceSize.smallDevice(context) ? 40 : 50,
         width: MediaQuery.of(context).size.width - 100,
         decoration: _selected != null
             ? BoxDecoration(
@@ -285,8 +286,8 @@ class _GameState extends State<Game> {
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Container(
-        width: MediaQuery.of(context).size.width - 50,
-        height: 230,
+        width: MediaQuery.of(context).size.width - (DeviceSize.smallDevice(context) ? 20 : 50),
+        height: DeviceSize.smallDevice(context) ? 180 : 230, // TODO: 180 responsive
         padding: EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -308,7 +309,7 @@ class _GameState extends State<Game> {
               _currentQuestion.queQuestion,
               style: TextStyle(
                 fontFamily: "Arial Rounded MT Bold",
-                fontSize: 17,
+                fontSize: DeviceSize.smallDevice(context) ? 15 : 17,
                 color: Color(0xff313131),
               ),
             ),
@@ -345,7 +346,7 @@ class _GameState extends State<Game> {
             : RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
-        margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 6),
+        margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: DeviceSize.smallDevice(context) ? 3 : 6),
         child: InkWell(
             onTap: () {
               setState(() {
@@ -355,15 +356,16 @@ class _GameState extends State<Game> {
               });
             },
             child: Container(
-                height: 73,
-                width: MediaQuery.of(context).size.width - 50,
+                height: MediaQuery.of(context).size.width / 5 - 20,
+                //height: DeviceSize.smallDevice(context) ? 48 : 73, // TODO: Find corrent value for 20
+                width: MediaQuery.of(context).size.width - (DeviceSize.smallDevice(context) ? 0 : 50),
                 child: Center(
                     child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Container(
-                      width: 50.00,
+                      width: DeviceSize.smallDevice(context) ? 35.00 : 50.00,
                       decoration: BoxDecoration(
                         color: Color(0xff4dd17b),
                         borderRadius: BorderRadius.only(
@@ -381,25 +383,25 @@ class _GameState extends State<Game> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: "Arial Rounded MT Bold",
-                              fontSize: 30,
+                              fontSize: DeviceSize.smallDevice(context) ? 20 : 30,
                               color: Color(0xffffffff),
                             ),
                           ),
                         ],
                       )),
                     ),
-                    Padding(padding: EdgeInsets.symmetric(horizontal: 10)),
+                    Padding(padding: EdgeInsets.symmetric(horizontal: DeviceSize.smallDevice(context) ? 5 : 10)),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Container(
-                            width: MediaQuery.of(context).size.width - 130,
+                            width: MediaQuery.of(context).size.width - (MediaQuery.of(context).size.width / 3 ),
                             child: Text(
                               questionAnswer.answer,
                               style: TextStyle(
                                 fontFamily: "Arial Rounded MT Bold",
-                                fontSize: 14,
+                                fontSize: DeviceSize.smallDevice(context) ? 12 : 14,
                                 color: Color(0xff313131),
                               ),
                             )),

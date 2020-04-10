@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:mathemeister/models/question.dart';
+import 'package:mathemeister/utils/ui/deviceSize.dart';
 
 class QuestionVisualizer {
-  static Widget questionVisualizer(List<Question> questions) {
+  static Widget questionVisualizer(List<Question> questions, BuildContext context) {
     List<Widget> dots = List<Widget>();
 
     for (var question in questions) {
-      dots.add(_questionDot(question.answered, question.correct));
+      dots.add(_questionDot(question.answered, question.correct, context));
       dots.add(Padding(padding: EdgeInsets.symmetric(horizontal: 2)));
     }
 
@@ -17,13 +18,13 @@ class QuestionVisualizer {
     );
   }
 
-  static Widget _questionDot(bool answered, bool correct) {
+  static Widget _questionDot(bool answered, bool correct, BuildContext context) {
     return Container(
       child: answered
-          ? Icon(correct ? Icons.check : Icons.close, size: 15)
+          ? Icon(correct ? Icons.check : Icons.close, size: DeviceSize.smallDevice(context) ? 8 : 15)
           : Container(),
-      height: 20,
-      width: 20,
+      height: DeviceSize.smallDevice(context) ? 12 : 20,
+      width: DeviceSize.smallDevice(context) ? 12 : 20,
       decoration: BoxDecoration(
         color: answered
             ? (correct ? Color(0xff64C133) : Color(0xffF44545))

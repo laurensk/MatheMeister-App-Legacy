@@ -7,6 +7,7 @@ import 'package:mathemeister/models/category.dart';
 import 'package:mathemeister/models/question.dart';
 import 'package:mathemeister/utils/sharedPrefsUtils.dart';
 import 'package:mathemeister/utils/ui/alertUtils.dart';
+import 'package:mathemeister/utils/ui/deviceSize.dart';
 import 'package:mathemeister/utils/ui/questionVisualizer.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -61,7 +62,7 @@ class _ResultsState extends State<Results> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: QuestionVisualizer.questionVisualizer(widget.questions),
+          title: QuestionVisualizer.questionVisualizer(widget.questions, context),
           backgroundColor: congrats ? Color(0xff4bc475) : Color(0xffC62424),
           leading: CupertinoButton(
             child: Container(
@@ -184,7 +185,7 @@ class _ResultsState extends State<Results> {
       Colors.white,
       TextStyle(
         fontFamily: "Arial Rounded MT Bold",
-        fontSize: 21,
+        fontSize: DeviceSize.smallDevice(context) ? 17 : 21,
         color: congrats ? Color(0xff40a764) : Color(0xffC62424),
       ),
       _retry,
@@ -209,7 +210,7 @@ class _ResultsState extends State<Results> {
       Colors.white,
       TextStyle(
         fontFamily: "Arial Rounded MT Bold",
-        fontSize: 21,
+        fontSize: DeviceSize.smallDevice(context) ? 17 : 21,
         color: congrats ? Color(0xff40a764) : Color(0xffC62424),
       ),
       _goHome,

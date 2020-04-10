@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mathemeister/utils/debugUtils.dart';
 import 'package:mathemeister/utils/ui/bottomButton.dart';
+import 'package:mathemeister/utils/ui/deviceSize.dart';
 import 'package:swipedetector/swipedetector.dart';
 
 class AppInfos extends StatefulWidget {
@@ -32,7 +33,7 @@ class AppInfosState extends State<AppInfos> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    padding: EdgeInsets.symmetric(vertical: DeviceSize.smallDevice(context) ? 5 : 20),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.max,
@@ -110,7 +111,7 @@ class AppInfosState extends State<AppInfos> {
                     ],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 60),
+                    padding: EdgeInsets.only(top: DeviceSize.smallDevice(context) ? 0 : 60),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 20),
@@ -130,7 +131,8 @@ class AppInfosState extends State<AppInfos> {
                       color: Color(0xff40a764),
                       fontSize: 15,
                     ),
-                  )
+                  ),
+                  Padding(padding: EdgeInsets.symmetric(vertical: 70),)
                 ],
               ),
             ),
