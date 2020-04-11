@@ -1,7 +1,7 @@
 name: mathemeister
 description: mathemeister
 
-version: 1.0.1+101002
+version: 1.0.2+102001
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -71,5 +71,12 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+
+  fonts:
+    - family: Arial Rounded MT Bold
+      fonts:
+        - asset: fonts/Arial-Rounded-MT-Bold.ttf
+
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
